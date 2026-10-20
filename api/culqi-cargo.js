@@ -49,7 +49,7 @@ module.exports = async (req, res) => {
     monto: cargo.amount / 100,
     fecha: new Date(cargo.creation_date || Date.now()).toISOString(),
     medio: [tarjeta && tarjeta.card_brand, cargo.source && cargo.source.last_four && `•••• ${cargo.source.last_four}`]
-      .filter(Boolean).join(' ') || 'Tarjeta',
+      .filter(Boolean).join(' ') || (String(token).startsWith('ype_') ? 'Yape' : 'Tarjeta'),
     mensaje: (cargo.outcome && cargo.outcome.user_message) || 'Pago realizado',
     prueba: llave.startsWith('sk_test'),
   });
