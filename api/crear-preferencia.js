@@ -27,6 +27,8 @@ module.exports = async (req, res) => {
       items: [{
         id: String(id),
         title: `${beneficiario || 'Pago'} - ${concepto || ''}`.slice(0, 250),
+        description: `Pago de ${concepto || 'servicio'} a ${beneficiario || 'proveedor'} desde Control de Pagos`.slice(0, 250),
+        category_id: 'services', // datos del ítem que Mercado Pago usa en su evaluación de riesgo
         quantity: 1,
         currency_id: 'PEN',
         unit_price: precio,
