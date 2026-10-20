@@ -1,0 +1,7 @@
+{
+  "name": "control-pagos-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "API de Mercado Pago para Control de Pagos (HU-08)",
+  "engines": { "node": ">=18" }
+}
