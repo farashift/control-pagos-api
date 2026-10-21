@@ -4,8 +4,13 @@
 
 const { permitirOrigen } = require('./_comun');
 
-const URL_DB = (process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || '').trim();
-const TOKEN_DB = (process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || '').trim();
+// Vercel puede ponerle un prefijo a las variables (ej. STORAGE_KV_REST_API_URL): se aceptan todas
+function variable(...finales) {
+  const nombre = Object.keys(process.env).find((k) => finales.some((f) => k === f || k.endsWith('_' + f)));
+  return nombre ? String(process.env[nombre]).trim() : '';
+}
+const URL_DB = variable('KV_REST_API_URL', 'UPSTASH_REDIS_REST_URL', 'REDIS_REST_URL');
+const TOKEN_DB = variable('KV_REST_API_TOKEN', 'UPSTASH_REDIS_REST_TOKEN', 'REDIS_REST_TOKEN');
 
 async function redis(comandos) {
   const respuesta = await fetch(`${URL_DB}/pipeline`, {
@@ -22,7 +27,11 @@ module.exports = async (req, res) => {
   permitirOrigen(req, res);
   res.setHeader('Cache-Control', 'no-store');
   if (req.method === 'OPTIONS') return res.status(204).end();
-  if (!URL_DB || !TOKEN_DB) return res.status(500).json({ error: 'Falta conectar la base de datos (Upstash) en Vercel.' });
+  if (!URL_DB || !TOKEN_DB) {
+    // Solo los NOMBRES de las variables relacionadas, para diagnosticar (nunca los valores)
+    const nombres = Object.keys(process.env).filter((k) => /REDIS|KV|UPSTASH|STORAGE/i.test(k));
+    return res.status(500).json({ error: 'Falta conectar la base de datos (Upstash) en Vercel.', variablesEncontradas: nombres });
+  }
 
   try {
     if (req.method === 'GET') {
